@@ -3,11 +3,11 @@ package com.company;
 public class Machine {
     private State[] states;
     private TransitionFunction[] transitionFunctions;
-    private char[] alphabet;
+    private Alphabet alphabet;
     private State initialState;
     private State[] finalStates;
 
-    public Machine(State[] states, TransitionFunction[] transitionFunctions, char[] alphabet, State initialState, State[] finalStates) {
+    public Machine(State[] states, TransitionFunction[] transitionFunctions, Alphabet alphabet, State initialState, State[] finalStates) {
         this.states = states;
         this.transitionFunctions = transitionFunctions;
         this.alphabet = alphabet;
@@ -15,7 +15,7 @@ public class Machine {
         this.finalStates = finalStates;
     }
 
-    public char[] getAlphabet() {
+    public Alphabet getAlphabet() {
         return alphabet;
     }
 

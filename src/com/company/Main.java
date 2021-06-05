@@ -14,11 +14,12 @@ public class Main {
 
         State[] states = { q0, q1 };
         TransitionFunction[] transitionFunctions = { delta1, delta2, delta3, delta4 };
-        char[] alphabet = { '0', '1' };
+        Alphabet alphabet = new Alphabet(new char[]{'0', '1'});
         State initialState = q0;
         State[] finalStates = { q1 };
 
         Machine machine = new Machine(states, transitionFunctions, alphabet, initialState, finalStates);
 
+        System.out.println(machine.getAlphabet().getLetters());
     }
 }
