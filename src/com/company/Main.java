@@ -1,11 +1,12 @@
 package com.company;
 
+import com.company.Exception.InvalidCountOfInitialStatesException;
 import com.company.Exception.InvalidInputStringException;
 
 public class Main {
 
     public static void main(String[] args) {
-        State q0 = new State("q0", StateStatus.NON_FINAL, true);
+        State q0 = new State("q0", StateStatus.NON_FINAL, false);
         State q1 = new State("q1", StateStatus.FINAL, false);
         State q2 = new State("q2", StateStatus.NON_FINAL, false);
 
@@ -20,13 +21,12 @@ public class Main {
         Alphabet alphabet = new Alphabet(new char[]{'a', 'b'});
         TransitionFunction[] functions = new TransitionFunction[]{f1, f2, f3, f4, f5, f6};
 
-        Machine machine = new Machine(states, alphabet, functions);
-
-
         try {
-            machine.testString("aaaaa2ab");
-        } catch (InvalidInputStringException e) {
+            Machine machine = new Machine(states, alphabet, functions);
+            machine.testString("aaaaaab");
+        } catch (Exception e) {
             e.printStackTrace();
         }
+
     }
 }

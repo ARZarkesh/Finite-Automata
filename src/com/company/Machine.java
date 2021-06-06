@@ -1,5 +1,6 @@
 package com.company;
 
+import com.company.Exception.InvalidCountOfInitialStatesException;
 import com.company.Exception.InvalidInputStringException;
 
 import java.util.LinkedList;
@@ -11,9 +12,8 @@ public class Machine {
     private State initialState;
     private LinkedList<State> finalStates;
 
-    public Machine(State[] states, Alphabet alphabet, TransitionFunction[] functions) {
+    public Machine(State[] states, Alphabet alphabet, TransitionFunction[] functions) throws InvalidCountOfInitialStatesException {
         finalStates = new LinkedList<>();
-
         for (State state : states) {
             if (state.isInitial) {
                 initialState = state;
@@ -28,6 +28,8 @@ public class Machine {
         this.functions = functions;
 
         assignFunctionsToStates();
+        checkInitialStates();
+
     }
 
     public boolean testString(String string) throws InvalidInputStringException {
@@ -57,6 +59,15 @@ public class Machine {
         for (TransitionFunction function : this.functions) {
             function.getSource().addFunction(function);
         }
+    }
+
+    private void checkInitialStates() throws InvalidCountOfInitialStatesException {
+        int count = 0;
+        for (State state : this.states)
+            if (state.isInitial) count++;
+
+        if (count != 1)
+            throw new InvalidCountOfInitialStatesException("There must be only one initial state in the machine");
     }
 
     public Alphabet getAlphabet() {
