@@ -1,25 +1,30 @@
 package com.company;
 
 public class TransitionFunction {
-    private State inputState;
-    private char inputChoice;
-    private State output;
+    private char input;
+    private State source;
+    private State target;
 
-    public TransitionFunction(State inputState, char inputChoice, State output) {
-        this.inputState = inputState;
-        this.inputChoice = inputChoice;
-        this.output = output;
+    public TransitionFunction(State source, char input, State target) {
+        this.source = source;
+        this.input = input;
+        this.target = target;
     }
 
-    public char getInputChoice() {
-        return inputChoice;
+    public char getInput() {
+        return input;
     }
 
-    public State getInputState() {
-        return inputState;
+    public State getTarget() {
+        return target;
     }
 
-    public State getOutput() {
-        return output;
+    public State getSource() {
+        return source;
+    }
+
+    public void show() {
+        String output = String.format("δ(%s, %c) = %s", this.source.getName(), input, this.target.getName());
+        System.out.println(output);
     }
 }
