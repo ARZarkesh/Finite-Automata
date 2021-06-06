@@ -3,20 +3,21 @@ package com.company;
 import java.util.LinkedList;
 
 enum StateStatus {
-    Final,
-    Initial,
-    Normal,
+    FINAL,
+    NON_FINAL,
 }
 
 public class State {
     private StateStatus status;
     private String name;
     private LinkedList<TransitionFunction> functions;
+    public boolean isInitial;
 
-    public State(String name, StateStatus status) {
+    public State(String name, StateStatus status, boolean isInitial) {
         this.functions = new LinkedList<>();
         this.name = name;
         this.status = status;
+        this.isInitial = isInitial;
     }
 
     public StateStatus getStatus() {

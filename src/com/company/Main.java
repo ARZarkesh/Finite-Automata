@@ -1,11 +1,13 @@
 package com.company;
 
+import com.company.Exception.InvalidInputStringException;
+
 public class Main {
 
     public static void main(String[] args) {
-        State q0 = new State("q0", StateStatus.Initial);
-        State q1 = new State("q1", StateStatus.Final);
-        State q2 = new State("q2", StateStatus.Normal);
+        State q0 = new State("q0", StateStatus.NON_FINAL, true);
+        State q1 = new State("q1", StateStatus.FINAL, false);
+        State q2 = new State("q2", StateStatus.NON_FINAL, false);
 
         TransitionFunction f1 = new TransitionFunction(q0, 'a', q0);
         TransitionFunction f2 = new TransitionFunction(q0, 'b', q1);
@@ -21,7 +23,10 @@ public class Main {
         Machine machine = new Machine(states, alphabet, functions);
 
 
-        boolean output = machine.testString("");
-        System.out.println(output);
+        try {
+            machine.testString("aaaaa2ab");
+        } catch (InvalidInputStringException e) {
+            e.printStackTrace();
+        }
     }
 }

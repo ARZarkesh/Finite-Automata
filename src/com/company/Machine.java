@@ -1,5 +1,7 @@
 package com.company;
 
+import com.company.Exception.InvalidInputStringException;
+
 import java.util.LinkedList;
 
 public class Machine {
@@ -13,9 +15,10 @@ public class Machine {
         finalStates = new LinkedList<>();
 
         for (State state : states) {
-            if (state.getStatus() == StateStatus.Initial) {
+            if (state.isInitial) {
                 initialState = state;
-            } else if (state.getStatus() == StateStatus.Final) {
+            }
+            if (state.getStatus() == StateStatus.FINAL) {
                 finalStates.push(state);
             }
         }
@@ -27,7 +30,11 @@ public class Machine {
         assignFunctionsToStates();
     }
 
-    public boolean testString(String string) {
+    public boolean testString(String string) throws InvalidInputStringException {
+
+        if (!alphabet.contains(string)) {
+            throw new InvalidInputStringException("Input is not allowed");
+        }
 
         // initialize pointer state
         State ptrState = initialState;
@@ -37,8 +44,12 @@ public class Machine {
             ptrState = ptrState.getNext(ptrInput);
         }
 
-        if (ptrState.getStatus() == StateStatus.Final) return true;
+        if (ptrState.getStatus() == StateStatus.FINAL) {
+            System.out.println("Accept");
+            return true;
+        }
 
+        System.out.println("Reject");
         return false;
     }
 

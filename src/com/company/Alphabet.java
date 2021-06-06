@@ -17,4 +17,12 @@ public class Alphabet {
         }
         return false;
     }
+
+    public boolean contains(String string) {
+        for (int i = 0; i < string.length(); i++) {
+            if (!contains(string.charAt(i))) return false;
+        }
+
+        return true;
+    }
 }
