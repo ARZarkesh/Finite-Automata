@@ -38,21 +38,45 @@ public class Machine {
             throw new InvalidInputStringException("Input is not allowed");
         }
 
-        // initialize pointer state
-        State ptrState = initialState;
+        int ptrInput = -1;
+        LinkedList<State> possibleStates = new LinkedList<>();
+        possibleStates.push(initialState);
 
-        for (int i = 0; i < string.length(); i++) {
-            char ptrInput = string.charAt(i);
-            ptrState = ptrState.getNext(ptrInput);
-        }
+        while (possibleStates.size() > 0 && ptrInput < string.length()) {
 
-        if (ptrState.getStatus() == StateStatus.FINAL) {
-            System.out.println("Accept");
-            return true;
+            for (State state : possibleStates) {
+                if (isAccept(state, string, ptrInput)) {
+                    System.out.println("Accept");
+                    return true;
+                }
+            }
+            ptrInput++;
+            if (ptrInput >= string.length()) {
+                System.out.println("Reject");
+                return false;
+            }
+            char input = string.charAt(ptrInput);
+
+            LinkedList<State> newPossibilities = new LinkedList<>();
+            for (int i = 0; i < possibleStates.size(); i++) {
+                State state = possibleStates.get(i);
+                pushList(newPossibilities, state.getNexts(input));
+            }
+            possibleStates = newPossibilities;
         }
 
         System.out.println("Reject");
         return false;
+    }
+
+    private boolean isAccept(State state, String string, int index) {
+        return state.getStatus() == StateStatus.FINAL && index == string.length() - 1;
+    }
+
+    private void pushList(LinkedList<State> src, LinkedList<State> target) {
+        for (State state : target) {
+            src.push(state);
+        }
     }
 
     private void assignFunctionsToStates() {

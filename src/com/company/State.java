@@ -49,4 +49,18 @@ public class State {
 
         return null;
     }
+
+    public LinkedList<State> getNexts(char input) {
+        LinkedList<State> output = new LinkedList<>();
+        for (TransitionFunction function : this.functions) {
+            if (function.getInput() == input && function.getSource() == this) {
+                output.push(function.getTarget());
+            }
+            if (function.getInput() == 'λ' && function.getSource() == this) {
+                output.push(function.getTarget());
+            }
+        }
+
+        return output;
+    }
 }
