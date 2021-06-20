@@ -2,11 +2,6 @@ package com.company;
 
 import java.util.LinkedList;
 
-enum StateStatus {
-    FINAL,
-    NON_FINAL,
-}
-
 public class State {
     private StateStatus status;
     private String name;
