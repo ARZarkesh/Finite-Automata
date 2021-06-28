@@ -11,14 +11,15 @@ public class Machine {
     private TransitionFunction[] functions;
     private State initialState;
     private LinkedList<State> finalStates;
+    private LinkedList<State> currentStates;
 
     public Machine(State[] states, Alphabet alphabet, TransitionFunction[] functions) throws InvalidCountOfInitialStatesException {
-        finalStates = new LinkedList<>();
+        this.finalStates = new LinkedList<>();
         for (State state : states) {
             if (state.isInitial) {
                 initialState = state;
             }
-            if (state.getStatus() == StateStatus.FINAL) {
+            if (state.isFinal) {
                 finalStates.push(state);
             }
         }
@@ -26,25 +27,24 @@ public class Machine {
         this.states = states;
         this.alphabet = alphabet;
         this.functions = functions;
-
-        assignFunctionsToStates();
         checkInitialStates();
-
     }
 
     public boolean testString(String string) throws InvalidInputStringException {
+        this.currentStates = new LinkedList<>();
 
         if (!alphabet.contains(string)) {
             throw new InvalidInputStringException("Input is not allowed");
         }
 
         int ptrInput = -1;
-        LinkedList<State> possibleStates = new LinkedList<>();
-        possibleStates.push(initialState);
 
-        while (possibleStates.size() > 0 && ptrInput < string.length()) {
+        this.currentStates.push(initialState);
+        pushList(this.currentStates, getNextStates(initialState, 'λ'));
 
-            for (State state : possibleStates) {
+        while (this.currentStates.size() > 0 && ptrInput < string.length()) {
+
+            for (State state : this.currentStates) {
                 if (isAccept(state, string, ptrInput)) {
                     System.out.println("Accept");
                     return true;
@@ -58,11 +58,11 @@ public class Machine {
             char input = string.charAt(ptrInput);
 
             LinkedList<State> newPossibilities = new LinkedList<>();
-            for (int i = 0; i < possibleStates.size(); i++) {
-                State state = possibleStates.get(i);
-                pushList(newPossibilities, state.getNexts(input));
+            for (int i = 0; i < this.currentStates.size(); i++) {
+                State state = this.currentStates.get(i);
+                pushList(newPossibilities, getNextStates(state, input));
             }
-            possibleStates = newPossibilities;
+            this.currentStates = newPossibilities;
         }
 
         System.out.println("Reject");
@@ -70,19 +70,15 @@ public class Machine {
     }
 
     private boolean isAccept(State state, String string, int index) {
-        return state.getStatus() == StateStatus.FINAL && index == string.length() - 1;
+        return state.isFinal && index == string.length() - 1;
     }
 
-    private void pushList(LinkedList<State> src, LinkedList<State> target) {
+    private LinkedList<State> pushList(LinkedList<State> src, LinkedList<State> target) {
         for (State state : target) {
             src.push(state);
         }
-    }
 
-    private void assignFunctionsToStates() {
-        for (TransitionFunction function : this.functions) {
-            function.getSource().addFunction(function);
-        }
+        return src;
     }
 
     private void checkInitialStates() throws InvalidCountOfInitialStatesException {
@@ -94,23 +90,15 @@ public class Machine {
             throw new InvalidCountOfInitialStatesException("There must be only one initial state in the machine");
     }
 
-    public Alphabet getAlphabet() {
-        return alphabet;
-    }
+    public LinkedList<State> getNextStates(State state, char input) {
+        LinkedList<State> output = new LinkedList<>();
+        for (TransitionFunction function : this.functions) {
+            if (function.input == input && function.source == state) {
+                output.push(function.target);
+                pushList(output, getNextStates(function.target, 'λ'));
+            }
+        }
 
-    public State getInitialState() {
-        return initialState;
-    }
-
-    public LinkedList<State> getFinalStates() {
-        return finalStates;
-    }
-
-    public State[] getStates() {
-        return states;
-    }
-
-    public TransitionFunction[] getFunctions() {
-        return functions;
+        return output;
     }
 }
