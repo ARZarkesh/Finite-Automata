@@ -6,14 +6,14 @@ import com.company.Exception.InvalidInputStringException;
 import java.util.LinkedList;
 
 public class Machine {
-    private State[] states;
+    private LinkedList<State> states;
     private Alphabet alphabet;
-    private TransitionFunction[] functions;
+    private LinkedList<TransitionFunction> functions;
     private State initialState;
     private LinkedList<State> finalStates;
     private LinkedList<State> currentStates;
 
-    public Machine(State[] states, Alphabet alphabet, TransitionFunction[] functions) throws InvalidCountOfInitialStatesException {
+    public Machine(LinkedList<State> states, Alphabet alphabet, LinkedList<TransitionFunction> functions) throws InvalidCountOfInitialStatesException {
         this.finalStates = new LinkedList<>();
         for (State state : states) {
             if (state.isInitial) {
@@ -100,5 +100,75 @@ public class Machine {
         }
 
         return output;
+    }
+
+    public Machine convertToDFA() throws InvalidCountOfInitialStatesException {
+        LinkedList<State> dfaStates = new LinkedList<>();
+        LinkedList<TransitionFunction> dfaFunctions = new LinkedList<>();
+        State trapState = new State("Trap", false, false);
+        for (char letter : this.alphabet.getLetters()) {
+            dfaFunctions.add(new TransitionFunction(trapState, letter, trapState));
+        }
+
+        String initialStateName = "{" + this.initialState.name;
+        for (State state : getNextStates(this.initialState, 'λ')) {
+            initialStateName += state.name;
+        }
+        initialStateName += "}";
+        State dfaInitialState = new State(initialStateName, false, true);
+
+        dfaStates.add(dfaInitialState);
+
+        for (int i = 0; i < dfaStates.size(); i++) {
+            State currentState = dfaStates.get(i);
+            if (currentState == trapState) break;
+
+            for (char letter : this.alphabet.getLetters()) {
+                LinkedList<TransitionFunction> result = new LinkedList<>();
+
+                for (TransitionFunction function : this.functions) {
+                    if (function.input == letter && currentState.name.contains(function.source.name)) {
+                        LinkedList<State> targets = getNextStates(function.source, letter);
+
+                        for (State target : targets) {
+                            result.add(new TransitionFunction(currentState, letter, target));
+                        }
+                    }
+                }
+
+                if (result.size() == 0) {
+                    dfaFunctions.add(new TransitionFunction(currentState, letter, trapState));
+                    if (!dfaStates.contains(trapState)) {
+                        dfaStates.add(trapState);
+                    }
+                } else if (result.size() == 1) {
+                    State target = result.get(0).target;
+                    dfaFunctions.add(new TransitionFunction(currentState, letter, target));
+                    if (!dfaStates.contains(target)) {
+                        dfaStates.add(target);
+                    }
+                } else if (result.size() > 1) {
+                    String name = "{";
+                    boolean isFinal = false;
+                    for (TransitionFunction function : result) {
+                        if (!name.contains(function.target.name)) name += function.target.name;
+                        if (function.target.isFinal) isFinal = true;
+                    }
+                    name += "}";
+                    State combinedState = new State(name, isFinal, false);
+                    dfaFunctions.add(new TransitionFunction(currentState, letter, combinedState));
+                    if (!dfaStates.contains(combinedState)) {
+                        dfaStates.add(combinedState);
+                    }
+                }
+            }
+        }
+
+        Machine dfa = new Machine(dfaStates, this.alphabet, dfaFunctions);
+        return dfa;
+    }
+
+    public LinkedList<TransitionFunction> getFunctions() {
+        return functions;
     }
 }

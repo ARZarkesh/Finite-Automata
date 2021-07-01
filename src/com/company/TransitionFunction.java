@@ -12,7 +12,8 @@ public class TransitionFunction {
     }
 
     public void show() {
-        String output = String.format("δ(%s, %c) = %s", this.source.name, input, this.target.name);
+        String isFinal = this.target.isFinal ? "**Final**" : "";
+        String output = String.format("δ(%s, %c) = %s %s", this.source.name, input, this.target.name, isFinal);
         System.out.println(output);
     }
 }
