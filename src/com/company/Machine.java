@@ -104,6 +104,11 @@ public class Machine {
     }
 
     public Machine convertToDFA() throws InvalidCountOfInitialStatesException {
+        if (isDFA()) {
+            System.out.println("There is no need conversion because this machine is already a DFA");
+            return null;
+        }
+
         LinkedList<State> dfaStates = new LinkedList<>();
         LinkedList<TransitionFunction> dfaFunctions = new LinkedList<>();
         State trapState = new State("Trap", false, false);
@@ -191,25 +196,27 @@ public class Machine {
         return false;
     }
 
-   public Machine minimizeDFA() {
+    public Machine minimizeDFA() throws InvalidCountOfInitialStatesException {
+        Machine minimizedDFA = new Machine(this.states, this.alphabet, this.functions);
+
         if (!isDFA()) {
-            System.out.println("The machine is not a DFA");
+            System.out.println("The machine is not a DFA, please first convert it to a DFA then retry again.");
             return null;
         }
-        for (int i = 0; i < this.states.size() - 1; i++) {
-            for (int j = i + 1; j < this.states.size(); j++) {
-                State s1 = this.states.get(i);
-                State s2 = this.states.get(j);
+
+        for (int i = 0; i < minimizedDFA.states.size() - 1; i++) {
+            for (int j = i + 1; j < minimizedDFA.states.size(); j++) {
+                State s1 = minimizedDFA.states.get(i);
+                State s2 = minimizedDFA.states.get(j);
                 if (!isDistinguishable(s1, s2)) {
                     s1.name = s1.name + s2.name;
-                    this.states.remove(s2);
-                    for (int k = 0; k < this.functions.size(); k++) {
-                        TransitionFunction function = this.functions.get(k);
+                    minimizedDFA.states.remove(s2);
+                    for (int k = 0; k < minimizedDFA.functions.size(); k++) {
+                        TransitionFunction function = minimizedDFA.functions.get(k);
                         if (function.source == s2) {
-                            this.functions.remove(function);
+                            minimizedDFA.functions.remove(function);
                             k--;
-                        }
-                        else if (function.target == s2) {
+                        } else if (function.target == s2) {
                             function.target = s1;
                         }
                     }
@@ -217,18 +224,16 @@ public class Machine {
             }
         }
 
-        return this;
-   }
+        return minimizedDFA;
+    }
 
     public LinkedList<TransitionFunction> getFunctions() {
         return functions;
     }
 
-    private void findAllPairs() {
-        for (int i = 0; i < this.states.size(); i++) {
-            for (int j = i; j < this.states.size(); j++) {
-
-            }
+    public void show() {
+        for (TransitionFunction function : this.functions) {
+            function.show();
         }
     }
 }

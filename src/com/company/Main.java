@@ -1,57 +1,96 @@
 package com.company;
 
 import java.util.LinkedList;
+import java.util.Scanner;
 
 public class Main {
 
     public static void main(String[] args) {
-        State q0 = new State("q0", false, true);
-        State q1 = new State("q1", false, false);
-        State q2 = new State("q2", true, false);
-        State q3 = new State("q3", false, false);
-        State q4 = new State("q4", true, false);
+        Scanner scanner = new Scanner(System.in);
 
-        TransitionFunction f1 = new TransitionFunction(q0, '0', q1);
-        TransitionFunction f2 = new TransitionFunction(q0, '1', q3);
-        TransitionFunction f3 = new TransitionFunction(q1, '0', q2);
-        TransitionFunction f4 = new TransitionFunction(q1, '1', q4);
-        TransitionFunction f5 = new TransitionFunction(q2, '0', q1);
-        TransitionFunction f6 = new TransitionFunction(q2, '1', q4);
-        TransitionFunction f7 = new TransitionFunction(q3, '0', q2);
-        TransitionFunction f8 = new TransitionFunction(q3, '1', q4);
-        TransitionFunction f9 = new TransitionFunction(q4, '0', q4);
-        TransitionFunction f10 = new TransitionFunction(q4, '1', q4);
+        boolean shouldContinue = true;
+
+        System.out.println("Enter your language alphabet letters (don't separate letters): ");
+        String letters = scanner.next();
+        Alphabet alphabet = new Alphabet(letters.toCharArray());
 
         LinkedList<State> states = new LinkedList<>();
-        states.push(q0);
-        states.push(q1);
-        states.push(q2);
-        states.push(q3);
-        states.push(q4);
+        while (shouldContinue) {
+            System.out.println("Enter state name: ");
+            String name = scanner.next();
 
-        Alphabet alphabet = new Alphabet(new char[]{'0', '1'});
+            System.out.println("is final? (y/n) ");
+            boolean isFinal = scanner.next().equalsIgnoreCase("y");
+
+            System.out.println("is initial? (y/n) ");
+            boolean isInitial = scanner.next().equalsIgnoreCase("y");
+
+            State state = new State(name, isFinal, isInitial);
+            states.push(state);
+
+            System.out.println("Do you want add another state? (y/n) ");
+            shouldContinue = scanner.next().equalsIgnoreCase("y");
+        }
+        shouldContinue = true;
+
         LinkedList<TransitionFunction> functions = new LinkedList<>();
-        functions.add(f1);
-        functions.add(f2);
-        functions.add(f3);
-        functions.add(f4);
-        functions.add(f5);
-        functions.add(f6);
-        functions.add(f7);
-        functions.add(f8);
-        functions.add(f9);
-        functions.add(f10);
+        while (shouldContinue) {
+            System.out.println("Enter function sourceState: ");
+            String sourceName = scanner.next();
+
+            System.out.println("Enter function characterInput: ");
+            char input = scanner.next().charAt(0);
+
+            System.out.println("Enter function targetState: ");
+            String targetName = scanner.next();
+
+            State source = null;
+            State target = null;
+
+            for (State state : states) {
+                if (state.name.equals(sourceName)) source = state;
+                if (state.name.equals(targetName)) target = state;
+            }
+
+            TransitionFunction function = new TransitionFunction(source, input, target);
+            functions.add(function);
+
+            System.out.println("Do you want add another function? (y/n) ");
+            shouldContinue = scanner.next().equalsIgnoreCase("y");
+        }
+        shouldContinue = true;
+
+        System.out.println("Choose operation: (1 or 2 or 3) ");
+        System.out.println("1. Test string in this machine");
+        System.out.println("2. Convert NFA to DFA");
+        System.out.println("3. Minimize DFA");
+        int operation = scanner.nextInt();
 
         try {
             Machine machine = new Machine(states, alphabet, functions);
-            Machine minimized = machine.minimizeDFA();
-//            machine.testString("a");
-//            Machine dfa = machine.convertToDFA();
-//            for (TransitionFunction f : dfa.getFunctions()) {
-//                f.show();
-//            }
-            for (TransitionFunction function : minimized.getFunctions()) {
-                function.show();
+
+            switch (operation) {
+                case 1:
+                    while (shouldContinue) {
+                        System.out.println("Your string: ");
+                        String string = scanner.next();
+                        machine.testString(string);
+
+                        System.out.println("Do you want test another string? (y/n) ");
+                        shouldContinue = scanner.next().equalsIgnoreCase("y");
+                    }
+                    break;
+                case 2:
+                    Machine dfa = machine.convertToDFA();
+                    dfa.show();
+                    break;
+                case 3:
+                    Machine minimizedDFA = machine.minimizeDFA();
+                    minimizedDFA.show();
+                    break;
+                default:
+                    System.out.println("Invalid operation");
+                    break;
             }
         } catch (Exception e) {
             e.printStackTrace();
